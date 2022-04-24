@@ -4,54 +4,71 @@ import Header from './Header';
 import MainSection from './MainSection';
 import 'todomvc-app-css/index.css';
 
-const initialState = [{
-  id: 0,
-  text: 'Yorkie JS SDK',
-  completed: false,
-}, {
-  id: 1,
-  text: 'Garbage collection',
-  completed: false,
-}, {
-  id: 2,
-  text: 'RichText datatype',
-  completed: false,
-}];
+const initialState = [
+  {
+    id: 0,
+    text: 'Yorkie JS SDK',
+    completed: false,
+  },
+  {
+    id: 1,
+    text: 'Garbage collection',
+    completed: false,
+  },
+  {
+    id: 2,
+    text: 'RichText datatype',
+    completed: false,
+  },
+];
 
 function getYYYYMMDD(): string {
   const now = new Date();
-  return`${now.getUTCFullYear()}${(`0${now.getUTCMonth() + 1}`).slice(-2)}${(`0${now.getUTCDate()}`).slice(-2)}`;
+  return `${now.getUTCFullYear()}${`0${now.getUTCMonth() + 1}`.slice(
+    -2
+  )}${`0${now.getUTCDate()}`.slice(-2)}`;
 }
 
 export default function App() {
-  const [doc, ] = useState(() => yorkie.createDocument('examples', `todo-mvc-${getYYYYMMDD()}`));
+  const [doc] = useState(() =>
+    yorkie.createDocument('examples', `todo-mvc-${getYYYYMMDD()}`)
+  );
   const [todos, setTodos] = useState([]);
-
   const actions = {
     addTodo: (text: string) => {
       doc.update((root) => {
-        root.todos.push({
-          id:
-          root.todos.reduce((maxId, todo) => 
-            Math.max(todo.id, maxId), -1
-          ) + 1,
-          completed: false,
-          text,
-        });
+        //   root.todos.push({
+        //     id:
+        //     root.todos.reduce((maxId, todo) =>
+        //       Math.max(todo.id, maxId), -1
+        //     ) + 1,
+        //     completed: false,
+        //     text,
+        //   });
+        // });
+        setTodos([
+          ...todos,
+          {
+            id: todos.reduce((maxId, todo) => Math.max(todo.id, maxId), -1) + 1,
+            completed: false,
+            text,
+          },
+        ]);
       });
     },
     deleteTodo: (id: number) => {
       doc.update((root) => {
-        let target;
-        for (const todo of root.todos) {
-          if (todo.id === id) {
-            target = todo;
-            break;
-          }
-        }
-        if (target) {
-          root.todos.deleteByID(target.getID());
-        }
+        // let target;
+        // for (const todo of root.todos) {
+        //   if (todo.id === id) {
+        //     target = todo;
+        //     break;
+        //   }
+        // }
+        // if (target) {
+        //   root.todos.deleteByID(target.getID());
+        // }
+        setTodos(todos.filter((todo) => todo.id !== id));
       });
     },
     editTodo: (id: number, text: string) => {
@@ -90,13 +107,12 @@ export default function App() {
           }
         }
       });
-    }
+    },
   };
-
   useEffect(() => {
     async function attachDoc() {
       // 01. create client with RPCAddr(envoy) then activate it.
-      const client = yorkie.createClient('https://yorkie.dev/api');
+      const client = yorkie.createClient('localhost:3000');
       await client.activate();
 
       // 02. attach the document into the client.
